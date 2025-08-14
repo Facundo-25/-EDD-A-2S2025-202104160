@@ -1,4 +1,4 @@
-program ExampleGTK;
+program SparceMatrix;
 
 uses
   login;

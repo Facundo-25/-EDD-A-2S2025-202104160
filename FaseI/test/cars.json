@@ -1,0 +1,18 @@
+{
+  "vehiculos" : [
+    {
+      "id" : 1,
+      "marca" : "Honda",
+      "modelo" : "CIVIC",
+      "propietario" : "Steven Mejia",
+      "correo" : "sm@edd.com"
+    },
+    {
+      "id" : 1,
+      "marca" : "Honda",
+      "modelo" : "Civic",
+      "propietario" : "Marcos Itzep",
+      "correo" : "mi@edd.com"
+    }
+  ]
+}

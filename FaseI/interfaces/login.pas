@@ -6,47 +6,77 @@ interface
 implementation
 
     uses
-    gtk2, glib2, gdk2
-    //createUser, rootHome, userHome
+        gtk2, glib2, gdk2, 
+        createUser, rootHome, userHome,
+        variables, interfaceTools,
+        simpleLinkedList
     ;
 
-
     var
-    entryUser, entryPass: PGtkWidget;
-    loginWindow: PGtkWidget;
-
+        entryUser, entryPass: PGtkWidget;
+        loginWindow: PGtkWidget;
 
     // Evento para el login.
     procedure OnLoginButtonClick(widget: PGtkWidget; data: gpointer); cdecl;
-        var
+    var
         userText, passText: PChar;
-        begin
-        
+        isValid: Boolean;
+        userData: TUserData;
+    begin
+        // Obtener el texto
         userText := PChar(gtk_entry_get_text(GTK_ENTRY(entryUser)));
         passText := PChar(gtk_entry_get_text(GTK_ENTRY(entryPass)));
 
-        gtk_widget_destroy(loginWindow);
-        //ShowRootHomeWindow;
-        //ShowUserHomeWindow;
-        end
-    ;
+        // Validar el usuario y contraseña
+        isValid := LSL_U_ValidateCredentials(userText, passText);
 
+        // Redireccion según el resultado de la validación
+        if isValid then
+        begin
+            // Obtener los datos del usuario
+            userData := LSL_U_GetUserByEmail(userText);
+            
+            // Asignar datos a las variables globales
+            //current_user_id := userData.id;
+            current_user_email := userData.email;
+            current_user_name := userData.name;
+            current_user_username := userData.username;
+
+            Writeln(current_user_username);
+        
+            gtk_widget_destroy(loginWindow);
+            ShowUserHomeWindow();
+        end
+        else if (userText = root_user_email) and (passText = root_user_password) then
+        begin
+            // Para el usuario root, asignar valores predeterminados o dejar en blanco
+            current_user_id := 0; // O algún valor predeterminado para root
+            current_user_name := 'Root';
+            current_user_email := root_user_email;
+            current_user_username := 'root';
+            
+            gtk_widget_destroy(loginWindow);
+            ShowRootHomeWindow();
+        end
+        else
+        begin
+            ShowErrorMessage(loginWindow, 'Error de Login', 'Usuario o contraseña incorrectos, por favor corrobore!');
+        end;
+    end;
 
     // Redirección a ventana crear usuario
     procedure OnCreateUserButtonClick(widget: PGtkWidget; data: gpointer); cdecl;
-        begin
+    begin
         gtk_widget_destroy(loginWindow);
-        //ShowCreateUserWindow;
-        end
-    ;
-
+        ShowCreateUserWindow;
+    end;
 
     // Procedimiento para mostrar la ventana de inicio de sesión
     procedure ShowLoginWindow;
     var
-    grid: PGtkWidget;                     // Contenedor tipo tabla para organizar widgets
-    lblUser, lblPass: PGtkWidget;         // Etiquetas para usuario y contraseña
-    btnLogin, btnCreateUser: PGtkWidget;  // Botones de Login y Crear Usuario
+        grid: PGtkWidget;                     // Contenedor tipo tabla para organizar widgets
+        lblUser, lblPass: PGtkWidget;         // Etiquetas para usuario y contraseña
+        btnLogin, btnCreateUser: PGtkWidget;  // Botones de Login y Crear Usuario
     begin
         // Inicializar la librería GTK 
         gtk_init(@argc, @argv);
@@ -97,6 +127,5 @@ implementation
         // Iniciar el bucle principal de eventos GTK
         gtk_main;
     end;
-
 
 end.
